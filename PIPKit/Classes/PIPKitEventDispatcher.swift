@@ -45,7 +45,8 @@ final class PIPKitEventDispatcher {
     
     func enterFullScreen() {
         UIView.animate(withDuration: 0.25, animations: { [weak self] in
-            self?.updateFrame()
+//            self?.rootViewController?.state = .pip
+            self?.updateFrame(newState: .full)
         }) { [weak self] (_) in
             self?.didEnterFullScreen()
         }
@@ -53,19 +54,21 @@ final class PIPKitEventDispatcher {
 
     func enterPIP() {
         UIView.animate(withDuration: 0.25, animations: { [weak self] in
-            self?.updateFrame()
+//            self?.rootViewController?.state = .pip
+            self?.updateFrame(newState: .pip)
         }) { [weak self] (_) in
             self?.didEnterPIP()
         }
     }
     
-    func updateFrame() {
+    func updateFrame(newState: PIPState? = nil) {
         guard let window = UIApplication.shared.keyWindow,
             let rootViewController = rootViewController else {
                 return
         }
         
-        switch PIPKit.state {
+        let changeState = newState ?? rootViewController.pipState
+        switch changeState {
         case .full:
             rootViewController.view.frame = window.bounds
         case .pip:
@@ -77,7 +80,6 @@ final class PIPKitEventDispatcher {
         rootViewController.view.setNeedsLayout()
         rootViewController.view.layoutIfNeeded()
     }
-
 
     // MARK: - Private
     private func commonInit() {
@@ -110,11 +112,13 @@ final class PIPKitEventDispatcher {
     
     private func didEnterFullScreen() {
         transitionGesture.isEnabled = false
+        rootViewController?.pipState = .full
         rootViewController?.didChangedState(.full)
     }
     
     private func didEnterPIP() {
         transitionGesture.isEnabled = true
+        rootViewController?.pipState = .pip
         rootViewController?.didChangedState(.pip)
     }
     
@@ -188,11 +192,13 @@ final class PIPKitEventDispatcher {
     // MARK: - Action
     @objc
     private func onTransition(_ gesture: UIPanGestureRecognizer) {
-        guard PIPKit.isPIP else {
-            return
-        }
+       
         guard let window = UIApplication.shared.keyWindow,
             let rootViewController = rootViewController else {
+            return
+        }
+        
+        guard rootViewController.pipState == .pip else {
             return
         }
         

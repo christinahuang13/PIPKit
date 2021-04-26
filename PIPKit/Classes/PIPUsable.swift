@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-public protocol PIPUsable {
+public protocol PIPUsable: AnyObject {
     var initialState: PIPState { get }
     var initialPosition: PIPPosition { get }
     var pipEdgeInsets: UIEdgeInsets { get }
@@ -10,6 +10,8 @@ public protocol PIPUsable {
     var pipCorner: PIPCorner? { get }
     func didChangedState(_ state: PIPState)
     func didChangePosition(_ position: PIPPosition)
+    
+    var pipState: PIPState { get set }
 }
 
 public extension PIPUsable {
@@ -27,25 +29,31 @@ public extension PIPUsable {
     }
     func didChangedState(_ state: PIPState) {}
     func didChangePosition(_ position: PIPPosition) {}
+    var pipState: PIPState {
+        get {
+            return initialState
+        }
+        set (newValue) {
+            print("Set state to \(newValue)")
+        }
+    }
 }
 
 public extension PIPUsable where Self: UIViewController {
-    
     func setNeedUpdatePIPSize() {
-        guard PIPKit.isPIP else {
+        guard pipState == .pip else {
             return
         }
         pipEventDispatcher?.updateFrame()
     }
 
     func startPIPMode() {
-        PIPKit.startPIPMode()
+        pipEventDispatcher?.enterPIP()
     }
     
     func stopPIPMode() {
-        PIPKit.stopPIPMode()
+        pipEventDispatcher?.enterFullScreen()
     }
-    
 }
 
 internal extension PIPUsable where Self: UIViewController {
