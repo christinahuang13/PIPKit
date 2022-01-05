@@ -8,6 +8,7 @@ public protocol PIPUsable: AnyObject {
     var pipSize: CGSize { get }
     var pipShadow: PIPShadow? { get }
     var pipCorner: PIPCorner? { get }
+    var currentPosition: PIPPosition { get set }
     func didChangedState(_ state: PIPState)
     func didChangePosition(_ position: PIPPosition)
     
@@ -27,6 +28,7 @@ public extension PIPUsable {
             return PIPCorner(radius: 6, curve: nil)
         }
     }
+    var currentPostion: PIPPosition { return .bottomRight }
     func didChangedState(_ state: PIPState) {}
     func didChangePosition(_ position: PIPPosition) {}
     var pipState: PIPState {
@@ -53,6 +55,11 @@ public extension PIPUsable where Self: UIViewController {
     
     func stopPIPMode() {
         pipEventDispatcher?.enterFullScreen()
+    }
+    
+    func updatePosition(to newPosition: PIPPosition) {
+        print("Updating pip position to \(newPosition)")
+        pipEventDispatcher?.updatePIPPosition(to: newPosition)
     }
 }
 

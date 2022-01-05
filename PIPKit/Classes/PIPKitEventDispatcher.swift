@@ -61,6 +61,10 @@ final class PIPKitEventDispatcher {
         }
     }
     
+    func updatePIPPosition(to newPosition: PIPPosition) {
+        self.pipPosition = newPosition
+    }
+    
     func updateFrame(newState: PIPState? = nil) {
         guard let window = UIApplication.shared.keyWindow,
             let rootViewController = rootViewController else {
@@ -163,6 +167,7 @@ final class PIPKitEventDispatcher {
     }
     
     private func updatePIPPosition() {
+
         guard let window = UIApplication.shared.keyWindow,
             let rootViewController = rootViewController else {
                 return
@@ -185,8 +190,8 @@ final class PIPKitEventDispatcher {
         default:
             pipPosition = center.x < window.frame.width / 2.0 ? .middleLeft : .middleRight
         }
-        
         rootViewController.didChangePosition(pipPosition)
+        rootViewController.currentPosition = pipPosition
     }
     
     // MARK: - Action
